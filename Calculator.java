@@ -1,9 +1,8 @@
 import java.util.*;
 
 public class Calculator {
-  private List<Object> sequence = new ArrayList<> ();
-  private String s;
-  private double Stack1;
+	private List<String> rpn = new ArrayList<> ();
+	private double Stack1;
   private double Stack2;
   private double Stack3;
   private double Stack4;
@@ -11,7 +10,7 @@ public class Calculator {
   private double Stack6;
   private double Stack7;
   private double Stack8;
-  public void shiftStack(){
+  public void shiftStackUp(){
     Stack8 = Stack7;
     Stack7 = Stack6;
     Stack6 = Stack5;
@@ -20,53 +19,95 @@ public class Calculator {
     Stack3 = Stack2;
     Stack2 = Stack1;
   }
-  public void setStack(double input){
-    shiftStack();
-    Stack1 = input;
-  }
-  public void setSequence(String sequence){
-    s = sequence;
-  }
-	public int indexed(char a){
-		if(s.indexOf(a)!=-1){
-			return s.indexOf(a);
-		} else {
-			return Integer.MAX_VALUE;
+	public void shiftStackDown(){
+		Stack2 = Stack3;
+		Stack3 = Stack4;
+		Stack4 = Stack5;
+		Stack5 = Stack6;
+		Stack6 = Stack7;
+		Stack7 = Stack8;
+		Stack8 = 0.0;
+	}
+	public Calculator(List<String> a){
+		rpn = a;
+	}
+	public Calculator(){
+		
+	}
+	public String disp(){
+		System.out.println();
+		return Stack2 + "\n" + Stack1;
+	}
+	public boolean isInteger( String input ) {
+    try {
+        Integer.parseInt( input );
+        return true;
+    }
+    catch( Exception e ) {
+        return false;
+    }
+}
+  public String push(String func){
+		if (isInteger(func)){
+			setStack((double)(int)(Integer.parseInt(func)));
+		} else if (func.equals("+")) {
+			add();
+		} else if (func.equals("-")) {
+			subtract();
+		} else if (func.equals("*")) {
+			multiply();
+		} else if (func.equals("/")) {
+			divide();
+		} else if (func.equals("^")) {
+			exponent();
 		}
+		return disp();
 	}
-  public int firstNum(){
-    int num = Math.min(indexed('0'),Math.min(Math.min(Math.min(Math.min(Math.min(Math.min(Math.min(Math.min(indexed('1'),indexed('2')),indexed('3')),indexed('4')),indexed('5')),indexed('6')),indexed('7')),indexed('8')),indexed('9')));
-			return num;
-  }
-  public int firstSym(){
-    int symbol = Math.min(Math.min(Math.min(Math.min(indexed('+'),indexed('-')),indexed('/')),indexed('*')),indexed('^'));
-
-			return symbol;
-	}
-  public void compile(){
-    for(;;){
-      if(firstNum() < firstSym()){
-				if(firstSym()!=Integer.MAX_VALUE){
-					sequence.add(s.substring(firstNum(),firstSym()).trim());
-					s=s.substring(firstSym());
-				} else {
-						sequence.add(s.substring(firstNum()).trim());
-						s="";
-					}
-      } else {
-				if(firstSym() < firstNum()){
-				sequence.add(s.substring(firstSym(),firstSym()+1));
-				if(firstSym()<=s.length()){
-					s=s.substring(firstSym()+1);
-					} else {
-						s="";
-					}
-				}
+	public String run(){
+		List<String> active = rpn;
+		for(;;){
+			if(isInteger(active.get(0))){
+				setStack((double)(int)Integer.parseInt(active.get(0)));
+			} else if (active.get(0).equals("+")) {
+				add();
+			} else if (active.get(0).equals("-")) {
+				subtract();
+			} else if (active.get(0).equals("*")) {
+				multiply();
+			} else if (active.get(0).equals("/")) {
+				divide();
+			} else if (active.get(0).equals("^")) {
+				exponent();
 			}
-			System.out.println(sequence);
-			if(s.trim() == ""){
+			active.remove(0);
+			if (active.size()==0){
 				break;
 			}
-    }
+		}
+		return disp();
+	}
+  public void setStack(double input){
+    shiftStackUp();
+    Stack1 = input;
   }
+	public void multiply(){
+		Stack1 = Stack1 * Stack2;
+		shiftStackDown();
+	}
+	public void divide(){
+		Stack1 = Stack2/Stack1;
+		shiftStackDown();
+	}
+	public void add(){
+		Stack1 = Stack1 + Stack2;
+		shiftStackDown();
+	}
+	public void subtract(){
+		Stack1 = Stack2-Stack1;
+		shiftStackDown();
+	}
+	public void exponent(){
+		Stack1 = Math.pow(Stack2,Stack1);
+		shiftStackDown();
+	}
 }
