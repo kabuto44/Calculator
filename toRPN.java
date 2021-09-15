@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class toRPN {
   private List<String> sequence = new ArrayList<> ();
@@ -75,10 +76,67 @@ public class toRPN {
 			System.exit(0);
 		}
 	}
+	public int priority(String a){
+		List<String> priority = Arrays.asList("0","+","1","-","1","*","2","/","2","^","3");
+		return (int)Integer.parseInt(priority.get(priority.indexOf(a)+1));
+	}
+		public boolean isInteger( String input ) {
+    try {
+        Integer.parseInt( input );
+        return true;
+    }
+    catch( Exception e ) {
+        return false;
+    }
+}
+	public void shuntingYard(){
+		List<String> input = sequence;
+		List<String> output = new ArrayList<>();
+		List<String> stack = new ArrayList<>();
+		while(input.size()!=0){
+			System.out.println("out"+output);
+			System.out.println("in"+input);
+			System.out.println("stack"+stack);
+			System.out.println();
+			if(isInteger(input.get(0))) {
+				output.add(input.get(0));
+				input.remove(0);
+			} else if(stack.size()==0){
+					stack.add(input.get(0));
+					input.remove(0);
+			} else if (input.get(0).equals("(")) {
+				stack.add(input.get(0));
+				input.remove(0);
+			}  else if (input.get(0).equals(")")) {
+				if (stack.get(0).equals("(")) {
+					stack.remove(stack.size()-1);
+					input.remove(0);
+				}
+				else if(priority(input.get(0))<priority(stack.get(stack.size()-1))) {
+				output.add(stack.get(stack.size()-1));
+				stack.remove(stack.size()-1);
+			} else if(priority(input.get(0))==priority(stack.get(stack.size()-1))&&input.get(0)!="^"){
+				output.add(stack.get(stack.size()-1));
+				stack.remove(stack.size()-1);
+			}  else if (priority(stack.get(0))!=Integer.MAX_VALUE) {
+					output.add(stack.get(stack.size()-1));
+					stack.remove(stack.size()-1);
+				}
+			} else {
+				stack.add(input.get(0));
+				input.remove(0);
+			}
+			}
+			while (stack.size()!=0){
+				output.add(stack.get(stack.size()-1));
+				stack.remove(stack.size()-1);
+			}
+			rpn=output;
+		}
   public void compile(){
 		otherSym();
 		bracketCheck();
-    for(;;){
+    while(s.trim().length()!=0){
       if(firstNum() < firstSym()){
 				if(firstSym()!=Integer.MAX_VALUE){
 					sequence.add(s.substring(firstNum(),firstSym()).trim());
@@ -96,10 +154,6 @@ public class toRPN {
 						s="";
 					}
 				}
-			}
-			System.out.println(sequence);
-			if(s.trim().length()==0){
-				break;
 			}
     }
   }

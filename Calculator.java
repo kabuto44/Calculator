@@ -65,7 +65,7 @@ public class Calculator {
 	}
 	public String run(){
 		List<String> active = rpn;
-		for(;;){
+		while(active.size()!=0){
 			if(isInteger(active.get(0))){
 				setStack((double)(int)Integer.parseInt(active.get(0)));
 			} else if (active.get(0).equals("+")) {
@@ -80,9 +80,6 @@ public class Calculator {
 				exponent();
 			}
 			active.remove(0);
-			if (active.size()==0){
-				break;
-			}
 		}
 		return disp();
 	}
